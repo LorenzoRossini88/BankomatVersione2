@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Data.Common;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -10,6 +11,12 @@ namespace BankomatSimulator
  
     class Banca
     {
+        public Banca(Banche data)
+        {
+            Nome = data.Nome;
+            data.Utenti
+        }
+
         public enum Funzionalita
         {
             Versamento,

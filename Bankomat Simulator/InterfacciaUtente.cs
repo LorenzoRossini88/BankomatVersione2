@@ -2,6 +2,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.InteropServices.ComTypes;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -10,6 +11,8 @@ namespace BankomatSimulator
    
     class InterfacciaUtente
     {
+        
+        
         enum Richiesta
         {
             SchermataDiBenvenuto,
@@ -23,6 +26,7 @@ namespace BankomatSimulator
 
         private SortedList<int, Banca> _banche;
         private Banca _bancaCorrente;
+        
 
         public InterfacciaUtente(SortedList<int,Banca> banche)
         {
@@ -75,18 +79,32 @@ namespace BankomatSimulator
         /// <returns>la scelta dell'utente - 0 per uscire</returns>
         private int SchermataDiBenvenuto()
         {
+
+            var ctx = new SoluzioneBankomatEntities();
             int scelta = -1;
             while (scelta == -1)
             {
                 StampaIntestazione("Selezione Banca");
 
-                foreach (var banca in _banche)
+                //foreach (var banca in _banche)
+                //{
+                //    Console.WriteLine($"{banca.Key.ToString()} - {banca.Value.Nome}");
+                //}
+
+                using (ctx)
                 {
-                    Console.WriteLine($"{banca.Key.ToString()} - {banca.Value.Nome}");
+                    foreach (Banche b in ctx.Banche)
+                    {
+                                            
+                       Console.WriteLine(b.Nome);
+                    }
                 }
+
+
+
                 Console.WriteLine("0 - Uscita");
 
-                scelta = ScegliVoceMenu(0, _banche.Count);
+                scelta = ScegliVoceMenu(0, ctx.Banche.Count());
             }
 
             return scelta;
@@ -103,6 +121,7 @@ namespace BankomatSimulator
         /// </returns>
         private bool Login()
         {
+            var ctx = new SoluzioneBankomatEntities();
             bool autenticato = false;
 
             Utente credenziali = new Utente();
@@ -110,9 +129,13 @@ namespace BankomatSimulator
             StampaIntestazione($"Login - {_bancaCorrente.Nome}");
 
             Console.Write("Nome utente: ");
-            credenziali.NomeUtente = Console.ReadLine();
+            string nomeutente = Console.ReadLine();
+            //credenziali.NomeUtente = Console.ReadLine();
             Console.Write("Password: ");
-            credenziali.Password = Console.ReadLine();
+            //credenziali.Password = Console.ReadLine();
+            string password = Console.ReadLine();
+
+            var accountTrovato = ctx.Utenti.FirstOrDefault();
 
             Banca.EsitoLogin esitoLogin =
                 _bancaCorrente.Login(credenziali, out Utente utente);
@@ -153,6 +176,8 @@ namespace BankomatSimulator
         /// <returns></returns>
         private Banca.Funzionalita MenuPrincipale()
         {
+
+            
             int scelta = -1;
             
             while (scelta == -1)
@@ -163,9 +188,14 @@ namespace BankomatSimulator
                 {
                     Console.WriteLine($"{funzionalita.Key.ToString()} - {funzionalita.Value.ToString()}");
                 }
-                Console.WriteLine("0 - Uscita");
 
+
+
+
+
+                Console.WriteLine("0 - Uscita");
                 scelta = ScegliVoceMenu(0, _bancaCorrente.ElencoFunzionalita.Count);
+               
             }
 
             return scelta == 0 ? 
